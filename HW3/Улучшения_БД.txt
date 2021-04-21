@@ -1,0 +1,14 @@
+/*Возможно, можно улучшить таблицу messages, добавив статусы "не доставлено", "доставлено", "прочитано"*/
+
+CREATE TABLE messages (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки", 
+  from_user_id INT UNSIGNED NOT NULL COMMENT "Ссылка на отправителя сообщения",
+  to_user_id INT UNSIGNED NOT NULL COMMENT "Ссылка на получателя сообщения",
+  body TEXT NOT NULL COMMENT "Текст сообщения",
+  is_important BOOLEAN COMMENT "Признак важности",
+  not_delivered BOOLEAN COMMENT "не доставлено",
+  is_delivered BOOLEAN COMMENT "доставлено",
+  is_read BOOLEAN COMMENT "прочитано",
+  created_at DATETIME DEFAULT NOW() COMMENT "Время создания строки"
+) COMMENT "Сообщения";
+

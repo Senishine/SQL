@@ -1,0 +1,40 @@
+-- 1. Составьте список пользователей users, которые осуществили хотя бы один заказ orders в интернет магазине.
+
+-- сложный запрос
+select users.* from users
+where 
+(select count(*) from orders where users.id = orders.user_id) >= 1;
+
+-- или с помощью join
+select users.*, orders_count from users join 
+(select user_id, count(*) as orders_count from orders 
+group by user_id
+having count(*) >= 1) as active_users
+on users.id = active_users.user_id;
+
+
+-- 2. Выведите список товаров products и разделов catalogs, который соответствует товару.
+
+-- сложный запрос
+select name, (select name from catalogs where id = products.catalog_id) as catalog from products;
+
+-- с помощью join
+select products.id, products.name, products.catalog_id, catalogs.name from products 
+	left join catalogs
+	on products.catalog_id = catalogs.id;
+
+-- 3.(по желанию) Пусть имеется таблица рейсов flights (id, from, to) и таблица городов cities (label, name). 
+-- Поля from, to и label содержат английские названия городов, поле name — русское. Выведите список рейсов flights с 
+-- русскими названиями городов.
+
+-- сложный запрос
+select 
+	(select name from cities where cities.label = flights.from) as dep, 
+	(select name from cities where cities.label = flights.to) as arr
+from flights;
+
+-- с помощью join
+select from_resolved.id, `from`, name as `to` from (
+	select f.id, name as `from`, `to` from flights f join cities c on f.from = c.label
+) as from_resolved join cities c1 on from_resolved.`to` = c1.label
+order by from_resolved.id;

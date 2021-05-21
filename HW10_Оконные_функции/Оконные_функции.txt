@@ -1,0 +1,35 @@
+1. Проанализировать, какие запросы могут выполняться наиболее часто в процессе работы приложения и добавить 
+необходимые индексы.
+
+create index users_last_name_idx on users(last_name);
+create index users_first_name_last_name_idx on users(first_name, last_name);
+
+create index profiles_birthday_idx on profiles(birthday);
+create index profiles_city_idx on profiles(city);
+
+create index likes_target_type_idx on likes(target_type);
+
+create index posts_head_idx on posts(head);
+
+2. Задание на оконные функции
+Построить запрос, который будет выводить следующие столбцы:
+имя группы
+среднее количество пользователей в группах (сумма количестива пользователей во всех группах делённая на количество групп)
+самый молодой пользователь в группе (желательно вывести имя и фамилию)
+самый старший пользователь в группе (желательно вывести имя и фамилию)
+количество пользователей в группе
+всего пользователей в системе (количество пользователей в таблице users)
+отношение в процентах для последних двух значений (общее количество пользователей в группе / всего пользователей в системе) * 100
+
+SELECT DISTINCT communities.name,
+    COUNT(communities_users.user_id) OVER() AS all_users,
+    COUNT(communities_users.user_id) over w AS all_users_in_group,
+    COUNT(communities_users.user_id) OVER w / COUNT(communities_users.user_id) OVER() * 100 AS "%%",
+    MIN(profiles.birthday) OVER w AS oldest_member,
+    MAX(profiles.birthday) OVER w AS youngest_member
+	FROM (communities
+		JOIN communities_users
+			ON communities.id = communities_users.community_id
+		JOIN profiles
+			ON profiles.user_id = communities_users.user_id)
+		WINDOW w AS (PARTITION BY communities_users.community_id);

@@ -1,0 +1,123 @@
+-- Практическое задание по теме “Оптимизация запросов”
+-- 1. Создайте таблицу logs типа Archive. Пусть при каждом создании записи в таблицах users, catalogs и products в таблицу logs помещается время и дата создания записи, 
+-- название таблицы, идентификатор первичного ключа и содержимое поля name.
+
+DROP TABLE IF EXISTS logs;
+CREATE TABLE logs (
+	created_at DATETIME NOT NULL,
+	table_name VARCHAR(45) NOT NULL,
+	row_id INT NOT NULL,
+	name_value VARCHAR(45) NOT NULL
+) ENGINE = ARCHIVE;
+
+DROP TRIGGER IF EXISTS users_info;
+delimiter //
+CREATE TRIGGER users_info AFTER INSERT ON users
+FOR EACH ROW
+BEGIN
+	INSERT INTO logs (created_at, table_name, row_id, name_value)
+	VALUES (NOW(), 'users', NEW.id, NEW.name);
+END //
+delimiter ;
+
+DROP TRIGGER IF EXISTS catalogs_info;
+delimiter //
+CREATE TRIGGER catalogs_info AFTER INSERT ON catalogs
+FOR EACH ROW
+BEGIN
+	INSERT INTO logs (created_at, table_name, row_id, name_value)
+	VALUES (NOW(), 'catalogs', NEW.id, NEW.name);
+END //
+delimiter ;
+
+delimiter //
+CREATE TRIGGER products_info AFTER INSERT ON products
+FOR EACH ROW
+BEGIN
+	INSERT INTO logs (created_at, table_name, row_id, name_value)
+	VALUES (NOW(), 'products', NEW.id, NEW.name);
+END //
+delimiter ;
+
+-- 2. (по желанию) Создайте SQL-запрос, который помещает в таблицу users миллион записей.
+
+DROP PROCEDURE IF EXISTS users_insert ;
+delimiter //
+CREATE PROCEDURE users_insert ()
+BEGIN
+	DECLARE i INT DEFAULT 100;
+	DECLARE j INT DEFAULT 0;
+	WHILE i > 0 DO
+		INSERT INTO users(name, birthday_at) VALUES (CONCAT('user_', j), NOW());
+		SET j = j + 1;
+		SET i = i - 1;
+	END WHILE;
+END //
+delimiter ;
+
+
+
+ Практическое задание по теме “NoSQL”
+-- 1. В базе данных Redis подберите коллекцию для подсчета посещений с определенных IP-адресов.
+
+HSET ipaddress 127.0.0.1 1
+
+-- 2. При помощи базы данных Redis решите задачу поиска имени пользователя по электронному адресу и наоборот, поиск электронного адреса пользователя по его имени.
+
+HSET emails 'Alex' 'sparrow@gmail.com'
+HGET emails 'Alex'
+HGET users 'sparrow@gmail.com' 
+
+
+-- 3.Организуйте хранение категорий и товарных позиций учебной базы данных shop в СУБД MongoDB.
+
+db.createCollection('catalogs')
+db.createCollection('products')
+
+db.catalogs.insert({name: 'Notebooks'})
+
+db.products.insert(
+  {
+    name: 'Asus Aspire-5 A515-55-55V2, 15.6',
+    description: 'IPS, Intel Core i5 1035G1 1.0ГГц, 8ГБ, 256ГБ SSD, Intel UHD Graphics , Eshell, NX.HSHER.005',
+    price: 50000.00
+  }
+);
+
+db.products.insert(
+  {
+    name: 'HP Omen 15-en1028ur, 15.6',
+    description: 'IPS, AMD Ryzen 7 5800H 3.2ГГц, 16ГБ, 1ТБ SSD, NVIDIA GeForce RTX 3070 для ноутбуков - 8192 Мб, Windows 10',
+    price: 176000.00
+  }
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
